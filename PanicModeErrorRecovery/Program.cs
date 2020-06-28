@@ -11,317 +11,423 @@ namespace PanicModeErrorRecovery
 
         static void Main(string[] args)
         {
-            while (true)
+            start();
+        }
+        static void start()
+        {
+            string continueornot = "y";
+            while (continueornot == "y" || continueornot == "Y")
             {
-                string str=null;
-                string strInput;
+                string input;
                 Console.WriteLine("\n" + "\n" + "" +
                     "***********************" +
-                    " Enter Input " +
+                    " Start Panic Mode Error Recovery " +
                     "***********************" + "\n");
-                strInput = Console.ReadLine();
-                char[] characters = strInput.ToArray();
-                for (int i = 0; i < characters.Length; ++i)
+                Console.Write("Input: ");
+                input = Console.ReadLine();
+                Console.WriteLine("Output:");
+                startchecking(input);
+                Console.WriteLine("Enter 'y' or 'Y' to continue and any other key to exit.");
+                continueornot = Console.ReadLine();
+            }
+            
+
+        }
+
+        static void startchecking(string input)
+        {
+            // character array of input to process every character
+            char[] inputstringarray = input.ToArray();
+
+            // spare string to store the current processing string
+            string flagstring = null;
+
+            int current = 0;
+            // loop to check all the characters in array
+            while (current < inputstringarray.Length)
+            {
+                // checking relational operators such as >,>=,<,<=,<>
+                if (checkRelationalOperator(ref inputstringarray, ref flagstring, ref current))
                 {
-                    //Relational Operaters
-                    if (characters[i] == '<')
+
+                }
+
+                // checking identifier
+                else if (checkIdentifier(ref inputstringarray, ref flagstring, ref current))
+                {
+
+                }
+
+                // checking number/digit
+                else if (checkNumber(ref inputstringarray, ref flagstring, ref current))
+                {
+
+                }
+
+
+                // checking assignment operator
+                else if (checkAssignmentOperator(ref inputstringarray, ref flagstring, ref current))
+                {
+
+                }
+
+                // checking DMAS Operator such as +,-,/,*
+                else if(checkDMASOperators(ref inputstringarray, ref flagstring, ref current))
+                {
+
+                }
+                else
+                {
+                    flagstring += inputstringarray[current];
+                    printErrrorMessage(ref flagstring);
+
+                }
+                // incrementing the loop veriable
+                current++;
+            }
+        }
+        static bool checkRelationalOperator(ref char[] inputstringarray, ref string flagstring, ref int i)
+        {
+            if (inputstringarray[i] == '<')
+            {
+                flagstring = flagstring + inputstringarray[i];
+                if (i + 1 != inputstringarray.Length)
+                {
+                    if (inputstringarray[i] == '=')
                     {
-                        str = str + characters[i];
-                        if (i + 1 != characters.Length)
+                        flagstring = flagstring + inputstringarray[i];
+                        Console.Write("<" + flagstring + " Less than Equal" + ">" + "\n");
+                        flagstring = null;
+                        i++;
+                        return true;
+                    }
+                    else if (inputstringarray[i] == '>')
+                    {
+                        flagstring = flagstring + inputstringarray[i];
+                        Console.Write("<" + flagstring + "Not Equal" + ">" + "\n");
+                        flagstring = null;
+                        i++;
+                        return true;
+                    }
+                    else
+                    {
+                        Console.Write("<" + flagstring + " Less than" + ">" + "\n");
+                        flagstring = null;
+                        return true;
+                    }
+                }
+                else
+                {
+                    Console.Write("<" + flagstring + " Less than" + ">" + "\n");
+                    flagstring = null;
+                    return true;
+                }
+            }
+            else if (inputstringarray[i] == '=')
+            {
+                flagstring = flagstring + inputstringarray[i];
+                Console.Write("<" + flagstring + " Equal" + ">" + "\n");
+                flagstring = null;
+                return true;
+            }
+            else if (inputstringarray[i] == '>')
+            {
+                flagstring = flagstring + inputstringarray[i];
+                if (i + 1 != inputstringarray.Length)
+                {
+                    if (inputstringarray[i + 1] == '=')
+                    {
+                        flagstring = flagstring + inputstringarray[i + 1];
+                        Console.Write("<" + flagstring + " Greater than Equal" + ">" + "\n");
+                        flagstring = null;
+                        i++;
+                        return true;
+                    }
+                    else
+                    {
+                        Console.Write("<" + flagstring + " Greater than" + ">" + "\n");
+                        flagstring = null;
+                        return true;
+                    }
+                }
+                else
+                {
+                    Console.Write("<" + flagstring + " Greater than" + ">" + "\n");
+                    flagstring = null;
+                    return true;
+                }
+            }
+            return false;
+        }
+        static bool checkIdentifier(ref char[] inputstringarray, ref string flagstring, ref int i)
+        {
+            if (char.IsLetter(inputstringarray[i]))
+            {
+                flagstring = flagstring + inputstringarray[i];
+                int j = i + 1;
+                if (inputstringarray.Length != j)
+                {
+                    while(j < inputstringarray.Length)
+                    {
+                        if (!char.IsDigit(inputstringarray[j]) && !char.IsLetter(inputstringarray[j]))
                         {
-                            if (characters[i] == '=')
-                            {
-                                str = str + characters[i];
-                                Console.Write("<"+str+" Less than Equal" +">"+ "\n");
-                                str = null;
-                                ++i;
-                            }
-                            else if (characters[i] == '>')
-                            {
-                                str = str + characters[i];
-                                Console.Write("<"+str+ "Not Equal" +">"+ "\n");
-                                str = null;
-                                ++i;
-                            }
-                            else
-                            {
-                                Console.Write("<"+str + " Less than" +">"+ "\n");
-                                str = null;
-                            }
+                            break;
+                          
                         }
                         else
                         {
-                            Console.Write("<"+str + " Less than" +">"+ "\n");
-                            str = null;
+                            flagstring = flagstring + inputstringarray[j];
                         }
+                        j++;
                     }
-                    else if (characters[i] == '=')
+                }
+                i = j - 1;
+                Console.Write("<" + flagstring + " Identifier" + ">" + "\n");
+
+                flagstring = null;
+                return true;
+            }
+            return false;
+        }
+        static bool checkNumber(ref char[] inputstringarray, ref string flagstring, ref int i)
+        {
+            if (char.IsDigit(inputstringarray[i]))
+            {
+                flagstring = flagstring + inputstringarray[i];
+                bool isnumber = true;
+                int j = i + 1;
+                if (j != inputstringarray.Length)
+                {
+                    while (j < inputstringarray.Length)
                     {
-                        str = str+characters[i];
-                        Console.Write("<"+str+" Equal" +">"+ "\n");
-                        str = null;
-                    }
-                    else if (characters[i] == '>')
-                    {
-                        str = str + characters[i];
-                        if (i + 1 != characters.Length)
+                        if (char.IsDigit(inputstringarray[j]))
                         {
-                            if (characters[i + 1] == '=')
-                            {
-                                str = str + characters[i+1];
-                                Console.Write("<"+str+ " Greater than Equal" +">" +"\n");
-                                str = null;
-                                ++i;
-                            }
-                            else
-                            {
-                                Console.Write("<"+str+" Greater than" +">"+ "\n");
-                                str = null;
-                            }
+                            flagstring = flagstring + inputstringarray[j];
+
                         }
-                        else
+                        else if (inputstringarray[j] == '.')
                         {
-                            Console.Write("<"+str+ " Greater than" +">"+ "\n");
-                            str = null;
-                        }
-                    }
-                    //Code to check Identifier
-                    else if (char.IsLetter(characters[i]))
-                    {
-                        str = str + characters[i];
-                        int j = i + 1;
-                        if (characters.Length != j)
-                        {
-                            for (; j < characters.Length; ++j)
+                            if (j + 1 != inputstringarray.Length)
                             {
-                                if (char.IsDigit(characters[j]) || char.IsLetter(characters[j]))
+                                if (char.IsDigit(inputstringarray[j + 1]))
                                 {
-                                    str = str + characters[j];
-                                    continue;
+                                    flagstring = flagstring + inputstringarray[j];
+
                                 }
                                 else
                                 {
+                                    isnumber = false;
                                     break;
                                 }
                             }
-                        }
-                        i = j - 1;
-                        Console.Write("<"+str+ " Identifier" +">"+ "\n");
-                        str = null;
-                    }
-                    //code to check is a number or not
-                    else if (char.IsDigit(characters[i]))
-                    {
-                        str = str + characters[i];
-                        bool flag = true;
-                        int j = i + 1;
-                        if (j != characters.Length)
-                        {
-                            for (; j < characters.Length; ++j)
+                            else
                             {
-                                if (char.IsDigit(characters[j]))
+                                isnumber = false;
+                                break;
+                            }
+                        }
+                        else if (inputstringarray[j] == 'E')
+                        {
+                            flagstring = flagstring + inputstringarray[j];
+                            if (j + 1 != inputstringarray.Length)
+                            {
+                                if (inputstringarray[j + 1] == '+' || inputstringarray[j + 1] == '-')
                                 {
-                                    str = str + characters[j];
-                                    continue;
-                                }
-                                else if (characters[j] == '.')
-                                {
-                                    if (j + 1 != characters.Length)
+                                    flagstring = flagstring + inputstringarray[j + 1];
+                                    if (char.IsDigit(inputstringarray[j + 2]))
                                     {
-                                        if (char.IsDigit(characters[j + 1]))
+                                        flagstring = flagstring + inputstringarray[j + 2];
+                                        int k = j + 3;
+                                        for (; k < inputstringarray.Length; ++k)
                                         {
-                                            str = str + characters[j];
+                                            if (char.IsDigit(inputstringarray[k]))
+                                            {
+                                                flagstring = flagstring + inputstringarray[k];
+                                            }
+                                            else break;
+                                        }
+                                        j = k - 1;
+                                    }
+                                    else
+                                    {
+                                        isnumber = false;
+
+                                        printErrrorMessage(ref flagstring);
+                                       
+                                    }
+                                }
+                                else if (char.IsDigit(inputstringarray[j + 1]))
+                                {
+                                    flagstring = flagstring + inputstringarray[j + 1];
+                                    int k = j + 2;
+                                    for (; k < inputstringarray.Length; ++k)
+                                    {
+                                        if (char.IsDigit(inputstringarray[k]))
+                                        {
+                                            flagstring = flagstring + inputstringarray[k];
                                             continue;
                                         }
                                         else
-                                        {
-                                            flag = false;
                                             break;
-                                        }
                                     }
-                                    else
-                                    {
-                                        flag = false;
-                                        break;
-                                    }
-                                }
-                                else if (characters[j] == 'E')
-                                {
-                                    str = str + characters[j];
-                                    if (j + 1 != characters.Length)
-                                    {
-                                        if (characters[j + 1] == '+' || characters[j + 1] == '-')
-                                        {
-                                            str = str + characters[j+1];
-                                            if (char.IsDigit(characters[j + 2]))
-                                            {
-                                                str = str + characters[j+2];
-                                                int k = j + 3;
-                                                for (; k < characters.Length; ++k)
-                                                {
-                                                    if (char.IsDigit(characters[k]))
-                                                    {
-                                                        str = str + characters[k];
-                                                        continue;
-                                                    }
-                                                    else
-                                                        break;
-                                                }
-                                                j = k - 1;
-                                            }
-                                            else
-                                            {
-                                                flag = false;
-                                                Console.Write("<"+str+ "Error!" +">"+ "\n");
-                                                str = null;
-                                            }
-                                        }
-                                        else if (char.IsDigit(characters[j + 1]))
-                                        {
-                                            str = str + characters[j+1];
-                                            int k = j + 2;
-                                            for (; k < characters.Length; ++k)
-                                            {
-                                                if (char.IsDigit(characters[k]))
-                                                {
-                                                    str = str + characters[k];
-                                                    continue;
-                                                }
-                                                else
-                                                    break;
-                                            }
-                                            j = k - 1;
-                                        }
-                                        else
-                                        {
-                                            flag = false;
-                                            Console.Write("<"+str+ " Error!" +">"+ "\n");
-                                            str = null;
-                                            break;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        flag = false;
-                                        Console.Write("<"+str+ " Error!" +">"+ "\n");
-                                        str = null;
-                                        j++;
-                                        break;
-                                    }
-
+                                    j = k - 1;
                                 }
                                 else
                                 {
-                                    flag = true;
-                                    break;
+                                    isnumber = false;
+                                    printErrrorMessage(ref flagstring);
+                                   
                                 }
                             }
-                        }
-                        i = j - 1;
-                        if (flag)
-                        {
-                            Console.Write("<"+str + " Number" +">"+ "\n");
-                            str = null;
-                        }
-                    }
-                    //code to check for white space
-                    else if (char.IsWhiteSpace(characters[i]))
-                    {
-                        Console.Write("<"+"Space" + ">"+"\n");
-                        str = null;
-                    }
-                    //code to check for assignment opperator
-                    else if (characters[i] == ':')
-                    {
-                        str = str + characters[i];
-                        int j = i + 1;
-                        if (j != characters.Length)
-                        {
-                            str = str + characters[j];
-                            if (characters[j] == '=')
-                            {
-                                str = str + characters[j];
-                                Console.Write("<"+str+ " Assignment Op" +">"+ "\n");
-                                str = null;
-                                i = j;
-                            }
                             else
                             {
-                                Console.Write("<"+str + " Error!" +">"+ "\n");
-                                str = null;
+                                isnumber = false;
+                                printErrrorMessage(ref flagstring);
+                                j++;
+                                
                             }
+
                         }
                         else
                         {
-                            Console.Write("<"+str + " Error!" +">"+ "\n");
-                            str = null;
+                            isnumber = true;
+                            break;
                         }
+                        j++;
                     }
-                    
-                    else if (characters[i] == '{')
-                    {
-                        str = str + characters[i];
-                        int j = i + 1;
-                        if (j != characters.Length)
-                        {
-                            if (characters[j] == '}')
-                            {
-                                str = str + characters[j];
-                                Console.Write("<"+str+ " Comment" + ">"+"\n");
-                                str = null;
-                                i = j;
-                            }
-                            else
-                            {
-                                Console.Write("<"+str+ " Error!" +">"+ "\n");
-                                str = null;
-                            }
-                        }
-                        else
-                        {
-                            Console.Write("<"+str + " Error!" +">"+ "\n");
-                            str = null;
-                        }
-                    }
-                    //code to check for add opperator
-                    else if (characters[i] == '+')
-                    {
-                        str = str + characters[i];
-                        Console.Write("<"+str+ " Add Operator" +">"+ "\n");
-                        str = null;
-                    }
-                    //code to check for subtract opperator
-                    else if (characters[i] == '-')
-                    {
-                        str = str + characters[i];
-                        Console.Write("<"+str+ " Subtract Operator" +">"+ "\n");
-                        str = null;
-                    }
-                    //code to check for multiplication opperator
-                    else if (characters[i] == '*')
-                    {
-                        str = str + characters[i];
-                        Console.Write("<"+str+ " Multiplication Operator" +">"+ "\n");
-                        str = null;
-                    }
-                    //code to check for division opperator
-                    else if (characters[i] == '/')
-                    {
-                        str = str + characters[i];
-                        Console.Write("<"+str+" Divsion Operator" +">"+ "\n");
-                        str = null;
-                    }
-                    //code print error if other than above cases
-                    else
-                    {
-                        str += characters[i];
-                        Console.Write("<"+str+ " Error!" +">"+ "\n");
-                        str = null;
-                    }
+                }
+                i = j - 1;
+                if (isnumber)
+                {
+                    Console.Write("<" + flagstring + " Number" + ">" + "\n");
+                    flagstring = null;
+                    return isnumber;
                 }
             }
 
+            return false;
         }
+        static bool checkspace(ref char[] inputstringarray, ref string flagstring, ref int i)
+        {
+            if (char.IsWhiteSpace(inputstringarray[i]))
+            {
+                Console.Write("<" + "Space" + ">" + "\n");
+                flagstring = null;
+                return true;
+            }
+            return false;
+
+        }
+        static bool checkAssignmentOperator(ref char[] inputstringarray, ref string flagstring, ref int i)
+        {
+            if (inputstringarray[i] == ':')
+            {
+                flagstring = flagstring + inputstringarray[i];
+                int j = i + 1;
+                if (j != inputstringarray.Length)
+                {
+                    flagstring = flagstring + inputstringarray[j];
+                    if (inputstringarray[j] == '=')
+                    {
+                        flagstring = flagstring + inputstringarray[j];
+                        Console.Write("<" + flagstring + " Assignment Op" + ">" + "\n");
+                        flagstring = null;
+                        i = j;
+                        return true;
+                    }
+                    else
+                    {
+
+                        printErrrorMessage(ref flagstring);
+                        return false;
+                    }
+                }
+                else
+                {
+
+                    printErrrorMessage(ref flagstring);
+                    return false;
+                }
+            }
+            return false;
+
+        }
+        static bool checkComment(ref char[] inputstringarray, ref string flagstring, ref int i)
+        {
+            if (inputstringarray[i] == '{')
+            {
+                flagstring = flagstring + inputstringarray[i];
+                int j = i + 1;
+                if (j != inputstringarray.Length)
+                {
+                    if (inputstringarray[j] == '}')
+                    {
+                        flagstring = flagstring + inputstringarray[j];
+                        Console.Write("<" + flagstring + " Comment" + ">" + "\n");
+                        flagstring = null;
+                        i = j;
+                        return true;
+                    }
+                    else
+                    {
+
+                        printErrrorMessage(ref flagstring);
+                        return false;
+                    }
+                }
+                else
+                {
+
+                    printErrrorMessage(ref flagstring);
+                    return false;
+                }
+            }
+            return false;
+
+        }
+        static bool checkDMASOperators(ref char[] inputstringarray, ref string flagstring, ref int i)
+        {
+            //add operator
+            if (inputstringarray[i] == '+')
+            {
+                flagstring = flagstring + inputstringarray[i];
+                Console.Write("<" + flagstring + " Add Operator" + ">" + "\n");
+                flagstring = null;
+                return true;
+            }
+            //subtract operator
+            else if (inputstringarray[i] == '-')
+            {
+                flagstring = flagstring + inputstringarray[i];
+                Console.Write("<" + flagstring + " Subtract Operator" + ">" + "\n");
+                flagstring = null;
+                return true;
+            }
+            //multiplication operator
+            else if (inputstringarray[i] == '*')
+            {
+                flagstring = flagstring + inputstringarray[i];
+                Console.Write("<" + flagstring + " Multiplication Operator" + ">" + "\n");
+                flagstring = null;
+                return true;
+            }
+            //division operator
+            else if (inputstringarray[i] == '/')
+            {
+                flagstring = flagstring + inputstringarray[i];
+                Console.Write("<" + flagstring + " Division Operator" + ">" + "\n");
+                flagstring = null;
+                return true;
+            }
+            return false;
+        }
+        static void printErrrorMessage(ref string s)
+        {
+            Console.Write("<" + s + " Error!" + ">" + "\n");
+            s = null;
+
+        }
+
     }   
 }
 
